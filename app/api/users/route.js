@@ -11,7 +11,7 @@ export async function GET() {
 }
 
 // POST → save new user
-export async function POST(req: Request) {
+export async function POST(req) {
   await connectDB();
 
   const body = await req.json();

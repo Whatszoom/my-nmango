@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [name, setName] = useState("");
-  const [users, setUsers] = useState<string[]>([]);
+  const [users, setUsers] = useState([]);
   const [dbStatus, setDbStatus] = useState("Checking...");
 
   // fetch users
@@ -12,7 +12,7 @@ export default function Home() {
     try {
       const res = await fetch("/api/users");
       const data = await res.json();
-      setUsers(data.map((u: any) => u.name));
+      setUsers(data.map((u) => u.name));
     } catch (err) {
       console.error("Error fetching users:", err);
     }

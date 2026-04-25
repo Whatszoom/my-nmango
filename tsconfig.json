@@ -28,7 +28,14 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "**/*.mts",
+    "app/page.js",
+    "models/User.js",
+    "lib/mongodb.js",
+    "app/api/users/route.js",
+    "app/api/db-status/route.js",
+    "app/api/users/route.js",
+    "app/api/db-status/route.js"
   ],
   "exclude": ["node_modules"]
 }
