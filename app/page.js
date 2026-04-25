@@ -55,7 +55,7 @@ export default function Home() {
       <input
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="Enter name"
+        placeholder="Enter name here"
       />
 
       <button onClick={saveUser} style={{ marginLeft: 10 }}>
