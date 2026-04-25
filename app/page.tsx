@@ -1,74 +1,91 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [data, setData] = useState<any[]>([]);
-  const [input, setInput] = useState("");
+  const [name, setName] = useState("");
+  const [users, setUsers] = useState<string[]>([]);
+  const [dbStatus, setDbStatus] = useState("Checking...");
 
-  useEffect(() => {
-    fetch("/api/test")
-      .then((res) => res.json())
-      .then(setData);
-  }, []);
-
-  const addData = async () => {
-    if (!input.trim()) return;
-
-    await fetch("/api/test", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: input }),
-    });
-
-    setInput(""); // clear input
-
-    const res = await fetch("/api/test");
-    const updated = await res.json();
-    setData(updated);
+  // fetch users
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch("/api/users");
+      const data = await res.json();
+      setUsers(data.map((u: any) => u.name));
+    } catch (err) {
+      console.error("Error fetching users:", err);
+    }
   };
 
+  // save user
+  const saveUser = async () => {
+    if (!name) return;
+
+    try {
+      await fetch("/api/users", {
+        method: "POST",
+        body: JSON.stringify({ name }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      setName("");
+      fetchUsers();
+    } catch (err) {
+      console.error("Error saving user:", err);
+    }
+  };
+
+  // fetch DB status + users on load
+  useEffect(() => {
+    fetch("/api/db-status")
+      .then((res) => res.json())
+      .then((data) => setDbStatus(data.dbStatus))
+      .catch(() => setDbStatus("Error"));
+
+    fetchUsers();
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-100 dark:bg-black">
-      <main className="bg-white dark:bg-zinc-900 shadow-xl rounded-2xl p-8 w-full max-w-md flex flex-col gap-6">
-        <div className="flex flex-col items-center gap-2">
-          <Image src="/next.svg" alt="Next.js logo" width={100} height={20} />
+    <div style={{ padding: 20 }}>
+      <h2>Add Name</h2>
 
-          <h1 className="text-xl font-semibold">
-            MongoDB Connected Mahadev Gydium EC2 Test File ✅
-          </h1>
-        </div>
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Enter name"
+      />
 
-        {/* Input + Button */}
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Enter something..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="flex-1 px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-black dark:bg-zinc-800 dark:border-zinc-700"
-          />
-          <button
-            onClick={addData}
-            className="bg-black text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
-          >
-            Add
-          </button>
-        </div>
+      <button onClick={saveUser} style={{ marginLeft: 10 }}>
+        Save
+      </button>
 
-        {/* Data List */}
-        <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
-          {data.map((item, i) => (
-            <div
-              key={i}
-              className="px-3 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800"
-            >
-              {item?.name}
-            </div>
-          ))}
-        </div>
-      </main>
+      {/* MongoDB Status */}
+      <h3 style={{ marginTop: 20 }}>
+        MongoDB Status:{" "}
+        <span
+          style={{
+            color:
+              dbStatus === "Connected"
+                ? "green"
+                : dbStatus === "Error"
+                  ? "red"
+                  : "orange",
+          }}
+        >
+          {dbStatus}
+        </span>
+      </h3>
+
+      <h2>Saved Names</h2>
+
+      <ul>
+        {users.map((n, i) => (
+          <li key={i}>{n}</li>
+        ))}
+      </ul>
     </div>
   );
 }
